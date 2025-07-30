@@ -1,4 +1,4 @@
-vname: Build ZSA Voyager Firmware
+name: Build ZSA Voyager Firmware
 
 on:
   push:
