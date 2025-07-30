@@ -8,32 +8,32 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout this repo
         uses: actions/checkout@v3
 
-      - name: Install dependencies and pipx
+      - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y git python3 python3-pip python3-venv zip unzip
-          pip3 install --user pipx
-          export PATH="$HOME/.local/bin:$PATH"
-          pipx ensurepath
+          sudo apt-get update
+          sudo apt-get install -y python3-pip gcc-arm-none-eabi binutils-arm-none-eabi
+
+      - name: Install QMK CLI
+        run: |
+          pip3 install --upgrade pip
           pipx install qmk
 
-      - name: Clone and set up QMK Firmware
+      - name: Clone QMK Firmware
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           git clone https://github.com/qmk/qmk_firmware.git
+          cd qmk_firmware
+          git submodule update --init --recursive
 
       - name: Copy keymap and custom code
         run: |
           cp -r ./zsa_github_firmware_repo/zsa_voyager_simple-colemak-dhm-layout-for-be_source ./qmk_firmware/keyboards/zsa/voyager/keymaps/ZlBBr_QzB0xm
           mkdir -p ./qmk_firmware/users/custom
-          shopt -s nullglob
-          files=(./zsa_github_firmware_repo/custom/*)
-          if [ ${#files[@]} -gt 0 ]; then
+          if [ -d "./zsa_github_firmware_repo/custom" ]; then
             cp -r ./zsa_github_firmware_repo/custom/* ./qmk_firmware/users/custom/
           fi
 
