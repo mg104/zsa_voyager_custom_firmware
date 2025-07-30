@@ -4,28 +4,45 @@ on:
   push:
     branches:
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout this repo
         uses: actions/checkout@v3
 
-      - name: Clone QMK Firmware
+      - name: Install dependencies and pipx
         run: |
+          sudo apt update
+          sudo apt install -y git python3 python3-pip python3-venv zip unzip
+          pip3 install --user pipx
+          export PATH="$HOME/.local/bin:$PATH"
+          pipx ensurepath
+          pipx install qmk
+
+      - name: Clone and set up QMK Firmware
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
           git clone --depth=1 https://github.com/qmk/qmk_firmware.git
-          python3 -m pip install --upgrade pip
-          pip3 install -r qmk_firmware/requirements.txt
+          cd qmk_firmware
+          qmk setup --yes
 
       - name: Copy keymap and custom code
         run: |
           cp -r ./zsa_github_firmware_repo/zsa_voyager_simple-colemak-dhm-layout-for-be_source ./qmk_firmware/keyboards/zsa/voyager/keymaps/ZlBBr_QzB0xm
           mkdir -p ./qmk_firmware/users/custom
+          shopt -s nullglob
+          files=(./zsa_github_firmware_repo/custom/*)
+          if [ ${#files[@]} -gt 0 ]; then
+            cp -r ./zsa_github_firmware_repo/custom/* ./qmk_firmware/users/custom/
+          fi
 
       - name: Compile firmware
         run: |
+          export PATH="$HOME/.local/bin:$PATH"
           cd qmk_firmware
-          qmk setup --yes
           qmk compile -kb zsa/voyager -km ZlBBr_QzB0xm
 
       - name: Upload firmware
@@ -33,3 +50,4 @@ jobs:
         with:
           name: voyager-firmware
           path: qmk_firmware/*.bin
+
