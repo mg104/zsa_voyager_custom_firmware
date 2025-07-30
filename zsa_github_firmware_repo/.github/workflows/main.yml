@@ -1,0 +1,49 @@
+name: Fetch & Build ZSA Voyager Firmware with Custom QMK
+
+on:
+  workflow_dispatch:
+    inputs:
+      layout_id:
+        description: 'Your public layout ID from Oryx (e.g. ZlBBr_QzB0xm)'
+        required: true
+      keyboard:
+        description: 'ZSA keyboard model (e.g. voyager)'
+        required: true
+        default: 'voyager'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python and QMK
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install qmk
+        qmk setup -y
+        qmk config user.keyboard=zsa/${{ github.event.inputs.keyboard }}
+
+    - name: Fetch latest layout from Oryx
+      run: |
+        mkdir -p oryx
+        cd oryx
+        curl -L -o layout.zip "https://configure.zsa.io/${{ github.event.inputs.layout_id }}/source"
+        unzip layout.zip -d ${{ github.event.inputs.layout_id }}_source
+
+    - name: Overlay custom config and keymap
+      run: |
+        cp -r custom/* oryx/${{ github.event.inputs.layout_id }}_source/
+
+    - name: Build firmware
+      run: |
+        cd oryx/${{ github.event.inputs.layout_id }}_source
+        qmk compile -kb zsa/${{ github.event.inputs.keyboard }} -km default
+
+    - name: Upload firmware artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: zsa-custom-firmware
+        path: oryx/${{ github.event.inputs.layout_id }}_source/.build/*.bin
