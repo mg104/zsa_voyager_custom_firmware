@@ -34,4 +34,3 @@ jobs:
         with:
           name: voyager-firmware
           path: qmk_firmware/*.bin
->>>>>>> 809a869 (Add tap-press custom function)
