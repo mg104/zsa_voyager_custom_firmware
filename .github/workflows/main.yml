@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout this repo
         uses: actions/checkout@v3
@@ -15,21 +16,26 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip gcc-arm-none-eabi binutils-arm-none-eabi
+          sudo apt-get install -y python3-pip gcc-arm-none-eabi binutils-arm-none-eabi git
 
       - name: Install QMK CLI
         run: |
-          pip3 install --upgrade pip
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --user pipx
+          python3 -m pipx ensurepath
           pipx install qmk
 
-      - name: Clone QMK Firmware
+      - name: Clean existing qmk_firmware (if any)
+        run: rm -rf qmk_firmware
+
+      - name: Clone QMK Firmware with zsa modules
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          git clone https://github.com/qmk/qmk_firmware.git
+          qmk clone qmk/qmk_firmware
           cd qmk_firmware
-          git submodule update --init --recursive
+          qmk setup --yes
 
-      - name: Copy keymap and custom code
+      - name: Copy keymap and user code
         run: |
           cp -r ./zsa_github_firmware_repo/zsa_voyager_simple-colemak-dhm-layout-for-be_source ./qmk_firmware/keyboards/zsa/voyager/keymaps/ZlBBr_QzB0xm
           mkdir -p ./qmk_firmware/users/custom
