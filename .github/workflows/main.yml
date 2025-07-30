@@ -19,9 +19,10 @@ jobs:
 
       - name: Copy keymap and custom code
         run: |
-          cp -r ./zsa_voyager_simple-colemak-dhm-layout ./qmk_firmware/keyboards/zsa/voyager/keymaps/ZlBBr_QzB0xm
+          cp -r ./zsa_github_firmware_repo/zsa_voyager_simple-colemak-dhm-layout-for-be_source ./qmk_firmware/keyboards/zsa/voyager/keymaps/ZlBBr_QzB0xm
           mkdir -p ./qmk_firmware/users/custom
-          cp -r ./custom/* ./qmk_firmware/users/custom/
+          cp -r ./zsa_github_firmware_repo/custom/* ./qmk_firmware/users/custom/
+
 
       - name: Compile firmware
         run: |
