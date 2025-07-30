@@ -27,7 +27,8 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           git clone --depth=1 https://github.com/qmk/qmk_firmware.git
           cd qmk_firmware
-          qmk clone zsa/oryx
+          mkdir -p lib/modules
+          git clone --depth=1 https://github.com/zsa/qmk_firmware_oryx.git lib/modules/zsa
 
       - name: Copy keymap and custom code
         run: |
