@@ -1,4 +1,4 @@
-name: Build ZSA Voyager Firmware
+vname: Build ZSA Voyager Firmware
 
 on:
   push:
@@ -25,10 +25,7 @@ jobs:
       - name: Clone and set up QMK Firmware
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          git clone --depth=1 https://github.com/qmk/qmk_firmware.git
-          cd qmk_firmware
-          mkdir -p lib/modules
-          git clone --depth=1 https://github.com/zsa/qmk_firmware_oryx.git lib/modules/zsa
+          git clone https://github.com/qmk/qmk_firmware.git
 
       - name: Copy keymap and custom code
         run: |
