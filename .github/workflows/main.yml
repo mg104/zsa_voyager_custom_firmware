@@ -1,36 +1,36 @@
-name: Build ZSA Voyager Firmware
+name: Build ZSA Voyager Custom Firmware
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
-    inputs:
-      layout:
-        description: 'Layout ID (from Oryx)'
-        required: true
-        default: 'ZlBBr_QzB0xm'
-      keyboard:
-        description: 'Keyboard (e.g., voyager)'
-        required: true
-        default: 'voyager'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
-      - name: Install QMK
-        run: |
-          python3 -m pip install --upgrade pip
-          pip3 install qmk
-          qmk setup -y
-          qmk config user.keyboard=zsa/${{ github.event.inputs.keyboard }}
+    - name: Install QMK
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install qmk
+        qmk setup -y
+        qmk config user.keyboard=zsa/voyager
 
-      - name: Build firmware
-        run: |
-          qmk compile -kb zsa/${{ github.event.inputs.keyboard }} -km ${{ github.event.inputs.layout }}
+    - name: Build firmware
+      run: |
+        qmk compile -kb zsa/voyager -km custom
+
+    - name: Upload firmware
+      uses: actions/upload-artifact@v3
+      with:
+        name: zsa-voyager-custom-firmware
+        path: qmk_firmware/.build/*.bin
